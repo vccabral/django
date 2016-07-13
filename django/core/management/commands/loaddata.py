@@ -145,7 +145,6 @@ class Command(BaseCommand):
         """
         Loads fixtures files for a given label.
         """
-        print("here"*50)
         show_progress = self.verbosity >= 3
         for fixture_file, fixture_dir, fixture_name in self.find_fixtures(fixture_label):
             _, ser_fmt, cmp_fmt = self.parse_name(os.path.basename(fixture_file))
