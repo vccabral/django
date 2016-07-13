@@ -13,46 +13,6 @@ import os
 
 class Command(DumpCommand):
 
-    migration_template = """# -*- coding: utf-8 -*-
-from __future__ import unicode_literals
-
-from django.db import migrations
-import django.core.management.commands.loaddata
-from django.db import DEFAULT_DB_ALIAS
-import os
-
-fixture_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), 'fixtures'))
-fixture_filename = '{{ json_file }}'
-
-
-def load_fixture(apps, schema_editor):
-    fixture_file = os.path.join(fixture_dir, fixture_filename)
-    load_command = django.core.management.commands.loaddata.Command()
-
-    options = {
-        "ignore": False,
-        "database": DEFAULT_DB_ALIAS,
-        "app_label": None,
-        "verbosity": 0,
-        "exclude": [],
-        "project_apps": apps
-    }
-
-    load_command.handle(fixture_file, **options)
-    print(1/0)
-
-
-class Migration(migrations.Migration):
-    dependencies = [
-        {% autoescape off %}{{ dependencies }}{% endautoescape %}
-    ]
-
-    operations = [
-        migrations.RunPython(load_fixture),
-    ]
-
-
-"""
     def handle(self, *app_labels, **options):
 
         out = StringIO()
