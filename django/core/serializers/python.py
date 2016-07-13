@@ -89,6 +89,7 @@ def Deserializer(object_list, **options):
     It's expected that you pass the Python objects themselves (instead of a
     stream or a string) to the constructor
     """
+    project_apps = options.pop('project_apps', None)
     db = options.pop('using', DEFAULT_DB_ALIAS)
     ignore = options.pop('ignorenonexistent', False)
     field_names_cache = {}  # Model: <list of field_names>
@@ -96,7 +97,7 @@ def Deserializer(object_list, **options):
     for d in object_list:
         # Look up the model and starting build a dict of data for it.
         try:
-            Model = _get_model(d["model"])
+            Model = _get_model(d["model"], project_apps)
         except base.DeserializationError:
             if ignore:
                 continue
@@ -184,11 +185,17 @@ def Deserializer(object_list, **options):
         yield base.DeserializedObject(obj, m2m_data)
 
 
-def _get_model(model_identifier):
+def _get_model(model_identifier, project_apps):
     """
     Helper to look up a model from an "app_label.model_name" string.
     """
     try:
-        return apps.get_model(model_identifier)
+        if project_apps:
+            model_import_split = model_identifier.split(".")
+            app_identified = model_import_split[0]
+            model_identifier = model_import_split[1]
+            return project_apps.get_model(app_identified,  model_identifier)
+        else:
+            return apps.get_model(model_identifier)
     except (LookupError, TypeError):
         raise base.DeserializationError("Invalid model identifier: '%s'" % model_identifier)
