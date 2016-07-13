@@ -63,6 +63,7 @@ class Command(BaseCommand):
         self.using = options['database']
         self.app_label = options['app_label']
         self.verbosity = options['verbosity']
+        self.project_apps = options.pop('project_apps', None)
         self.excluded_models, self.excluded_apps = parse_apps_and_model_labels(options['exclude'])
 
         with transaction.atomic(using=self.using):
@@ -159,8 +160,16 @@ class Command(BaseCommand):
                         % (ser_fmt, fixture_name, humanize(fixture_dir))
                     )
 
+                options = {
+                    'using': self.using,
+                    'ignorenonexistent': self.ignore,
+                }
+
+                if self.project_apps:
+                    options['project_apps'] = self.project_apps
+
                 objects = serializers.deserialize(
-                    ser_fmt, fixture, using=self.using, ignorenonexistent=self.ignore,
+                    ser_fmt, fixture, **options
                 )
 
                 for obj in objects:
