@@ -78,6 +78,9 @@ class MigrationExecutor(object):
         # Create the forwards plan Django would follow on an empty database
         full_plan = self.migration_plan(self.loader.graph.leaf_nodes(), clean_start=True)
 
+        print(plan)
+        print(full_plan)
+
         all_forwards = all(not backwards for mig, backwards in plan)
         all_backwards = all(backwards for mig, backwards in plan)
 
